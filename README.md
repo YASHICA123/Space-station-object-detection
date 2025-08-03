@@ -3,7 +3,7 @@ Space Station Object Detection with YOLOv11 using Synthetic Data from Falcon. Af
 Access the model from here:
 https://drive.google.com/drive/folders/1xVoXzvHAjrs-dbY864jPVEih4f0rC9kO?usp=sharing
 #Steps to access:
-1. download from drive link
+1. download the folder from drive link
 2. Go to the path directory in the terminal
 3. set up the enviroment.
 4. Enter uvicorn app:app --reload in the terminal
