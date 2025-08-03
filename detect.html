@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Space Station</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Background image with a faded overlay */
+    body,
+    html {
+      height: 100%;
+      margin: 0;
+    }
+
+    .background {
+      background: url('https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/ed5f9f3e-6c5e-4682-9405-3c8e34aac29a.png') no-repeat center center/cover;
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      filter: brightness(0.5);
+      z-index: -1;
+    }
+
+    /* Navigation link custom active coloring based on design */
+    .nav-home {
+      background-color: #5f5e41;
+    }
+
+    .nav-detect {
+      background-color: #3f1d18;
+    }
+
+    .nav-about {
+      background-color: #67634f;
+    }
+
+    .nav-contact {
+      background-color: #3f1d18;
+    }
+    .btn-start {
+      @apply bg-white text-black font-serif text-lg py-2 px-6 border border-black rounded-md hover:bg-gray-200 transition-colors;
+       
+    }
+    .btn-start:hover{
+        background-color: #f0ead6;
+            color: #331500;
+            border-color: #331500;
+        }
+    .btn-start{
+         background-color: white;
+            color: black;
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-size: 1.25rem;
+            font-weight: 600;
+            border: 1px solid black;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            text-decoration: none;
+    }
+
+   
+  </style>
+</head>
+
+<body class="relative min-h-screen flex flex-col">
+  <div class="background" role="img" aria-label="Space station above Earth with starry sky and a spaceship flying by"></div>
+
+  <!-- Navigation Bar -->
+  <nav class="w-full flex justify-center space-x-2 mt-4 text-white font-sans tracking-wide">
+    <a href="Home.html" class="nav-home px-5 py-3 rounded-md hover:opacity-80 transition-opacity">HOME</a>
+    <a href="detect.html" class="nav-detect px-5 py-3 rounded-md hover:opacity-80 transition-opacity">DETECT</a>
+    <a href="about.html" class="nav-about px-5 py-3 rounded-md hover:opacity-80 transition-opacity">ABOUT US</a>
+  </nav>
+
+  <!-- Content central container -->
+  <main class="flex-grow flex flex-col justify-center items-center text-center px-4">
+    <h1 class="text-5xl md:text-7xl font-serif text-cream leading-tight mb-12 text-yellow-50 drop-shadow-lg">
+      Welcome
+    </h1>
+  
+
+
+   <form id="uploadForm" enctype="multipart/form-data" class="flex flex-col items-center space-y-4">
+  <input type="file" id="imageInput" name="file" accept="image/*" required class="mb-4 border rounded p-2" />
+  <button type="submit" class="btn-start">UPLOAD NOW</button>
+</form>
+<div id="result" class="mt-6 text-white text-lg"></div>
+  </main>
+  <script>
+document.getElementById("uploadForm").addEventListener("submit", async function(event) {
+  event.preventDefault();
+
+  const fileInput = document.getElementById("imageInput");
+  if (!fileInput.files.length) return;
+
+  const formData = new FormData();
+  formData.append("file", fileInput.files[0]);
+
+  document.getElementById("result").innerHTML = "<em>Processing image...</em>";
+
+  try {
+    const response = await fetch("http://localhost:8000/predict/", {
+      method: "POST",
+      body: formData
+    });
+    const data = await response.json();
+
+    if (data.detections && data.detections.length > 0) {
+      document.getElementById("result").innerHTML =
+        "<strong>Detections:</strong><ul>" +
+        data.detections.map(
+          det => `<li>${det.label} (${(det.confidence * 100).toFixed(1)}%)</li>`
+        ).join("") + "</ul>";
+    } else if (data.error) {
+      document.getElementById("result").innerHTML =
+        `<span style="color:red;">Backend Error: ${data.error}</span>`;
+    } else {
+      document.getElementById("result").innerHTML = "<span>No objects detected.</span>";
+    }
+  } catch (err) {
+    document.getElementById("result").innerHTML =
+      "<span style='color: red;'>Error: " + err.message + "</span>";
+  }
+});
+</script>
